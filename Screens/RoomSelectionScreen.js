@@ -39,7 +39,6 @@ export default function RoomSelectionScreen(props) {
 	useEffect(() => {
 		if (socket) {
 			socket.on("room:getAll", allRooms => {
-				console.log(allRooms);
 				setAllRoom(allRooms);
 			});
 			socket.on("room:connected", room => {
@@ -47,14 +46,13 @@ export default function RoomSelectionScreen(props) {
 				setConnected(true);
 			});
 			socket.on("room:connectionError", room => {
-				console.log("error connection");
 				setOpenPasswordRequest(false);
 				Alert.alert("Mauvais mot de passe");
 			});
 			socket.on("room:createError", room => {
 				Alert.alert("Choisir un autre nom de room");
-				setNewRoomPassword();
-				setNewRoom();
+				setNewRoomPassword("");
+				setNewRoom("");
 			});
 		}
 	}, [socket]);
@@ -63,7 +61,7 @@ export default function RoomSelectionScreen(props) {
 		<View style={{ flex: 1, width: "100%", justifyContent: "center" }}>
 			<LinearGradient
 				style={{ flex: 1, width: "100%", justifyContent: "center" }}
-				colors={["#3f4347", "#1a1b1c"]}
+				colors={["#253237", "#46494C"]}
 				start={[0.1, 0]}
 				end={[0.9, 0.9]}
 			>
@@ -75,9 +73,14 @@ export default function RoomSelectionScreen(props) {
 						disconnect={() => setConnected(false)}
 					/>
 				) : (
-					<View>
+					<View
+						style={{
+							margin: 10,
+							width: "auto"
+						}}
+					>
 						<Modal
-							animationType="slide"
+							animationType="fade"
 							transparent={true}
 							visible={openPasswordRequest}
 							onRequestClose={() => {
@@ -89,7 +92,7 @@ export default function RoomSelectionScreen(props) {
 								style={{
 									width: "100%",
 									height: "100%",
-									backgroundColor: "#ffffff40",
+									backgroundColor: "#3f434799",
 									alignItems: "center",
 									justifyContent: "center"
 								}}
@@ -97,7 +100,7 @@ export default function RoomSelectionScreen(props) {
 								<View
 									style={{
 										width: 300,
-										backgroundColor: "#3f4347"
+										backgroundColor: "#1a1b1c"
 									}}
 								>
 									<TextInput
@@ -121,63 +124,66 @@ export default function RoomSelectionScreen(props) {
 												name: room,
 												password: password
 											});
+											setPassword("");
 										}}
 									/>
 								</View>
 							</View>
 						</Modal>
-						<View
-							style={{
-								margin: 10,
-								width: "90%"
-							}}
-						>
+						<View>
 							<View>
-								<Selector
-									items={allRoom}
-									icon={() => (
-										<TouchableOpacity
-											onPress={() => setOpenNewRoom(true)}
-										>
-											<MaterialIcons
-												name="add"
-												size={24}
-												color={"black"}
-											/>
-										</TouchableOpacity>
-									)}
-									renderItem={(item, index) => (
-										<TouchableOpacity
-											style={{
-												borderRadius: 5,
-												elevation: 5,
-												marginTop: 15
-											}}
-											key={index}
-											onPress={() => {
-												setOpenPasswordRequest(true);
-												setRoom(item);
-											}}
-										>
+								{openNewRoom ? null : (
+									<Selector
+										items={allRoom}
+										icon={() => (
+											<TouchableOpacity
+												onPress={() =>
+													setOpenNewRoom(true)
+												}
+											>
+												<MaterialIcons
+													name="add"
+													size={24}
+													color={"black"}
+												/>
+											</TouchableOpacity>
+										)}
+										setNewRoom={room => setNewRoom(room)}
+										renderItem={(item, index) => (
 											<LinearGradient
-												colors={["#242625", "#2c2e2e"]}
+												colors={["#DCDCDD", "#C5C3C6"]}
 												start={[0.1, 0]}
 												end={[0.9, 0.9]}
-												style={{ padding: 14 }}
+												style={{
+													borderRadius: 5,
+													elevation: 5,
+													marginTop: 10,
+													padding: 14
+												}}
 											>
-												<Text
-													style={{
-														color: "white",
-														textAlign: "center",
-														fontSize: 15
+												<TouchableOpacity
+													key={index}
+													onPress={() => {
+														setOpenPasswordRequest(
+															true
+														);
+														setRoom(item);
 													}}
 												>
-													{item}
-												</Text>
+													<Text
+														style={{
+															color: "black",
+															textAlign: "center",
+															fontSize: 15
+														}}
+													>
+														{item}
+													</Text>
+												</TouchableOpacity>
 											</LinearGradient>
-										</TouchableOpacity>
-									)}
-								/>
+										)}
+									/>
+								)}
 								<Modal
 									animationType="fade"
 									transparent={true}
@@ -185,14 +191,13 @@ export default function RoomSelectionScreen(props) {
 									onRequestClose={() => {
 										setOpenNewRoom(false);
 										setNewRoomPassword("");
-										setNewRoom("");
 									}}
 								>
 									<View
 										style={{
 											width: "100%",
 											height: "100%",
-											backgroundColor: "#ffffff40",
+											backgroundColor: "#3f434799",
 											alignItems: "center",
 											justifyContent: "center"
 										}}
@@ -200,7 +205,8 @@ export default function RoomSelectionScreen(props) {
 										<View
 											style={{
 												width: 300,
-												backgroundColor: "#3f4347"
+												backgroundColor: "#1a1b1c",
+												elevation: 10
 											}}
 										>
 											<TextInput
@@ -246,6 +252,7 @@ export default function RoomSelectionScreen(props) {
 														password: newRoomPassword
 													});
 													setOpenNewRoom(false);
+													setNewRoom("");
 												}}
 											/>
 										</View>
