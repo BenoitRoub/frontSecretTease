@@ -1,13 +1,13 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
-import MainScreen from './Screens/MainScreen'
-import ConnexionScreen from './Screens/ConnexionScreen'
+import MainScreen from "./Screens/MainScreen";
+import RoomSelectionScreen from "./Screens/RoomSelectionScreen";
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <ConnexionScreen />
+      <RoomSelectionScreen />
     </View>
   );
 }
@@ -15,8 +15,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center"
+  }
 });

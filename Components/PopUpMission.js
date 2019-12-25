@@ -1,142 +1,153 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState, useEffect } from "react";
 
-import { Text, View, TouchableOpacity, StyleSheet } from "react-native"
+import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 
-import { MaterialIcons } from '@expo/vector-icons';
+import { MaterialIcons } from "@expo/vector-icons";
 
-import getMission from ".././Function/getMission"
-import ListPlayer from "./ListPlayer"
+import getMission from ".././Function/getMission";
+import ListPlayer from "./ListPlayer";
 
 export default function PopUpMission(props) {
+	const [mission, setMission] = useState();
 
-
-	const [mission, setMission] = useState()
-
-	const [confirmed, setConfirmed] = useState(false)
-
+	const [confirmed, setConfirmed] = useState(false);
 
 	//  Liste des jouerus pour les missions avec cibles
-	const [players, setPlayers] = useState()
+	const [players, setPlayers] = useState([]);
 	useEffect(() => {
-		props.room.on('New Player', players => {
-			setPlayers(players)
-		})	
-		props.room.on('Mission Discover', () => {
-			setMission()
-			props.changeTimer(10)
-		})		
-	},[])
+		props.room.on("New Player", players => {
+			setPlayers(players);
+		});
+		props.room.emit("Actualise Player List");
+		props.room.on("Mission Discover", () => {
+			setMission();
+			props.changeTimer(10);
+		});
+	}, []);
 
-	
 	useEffect(() => {
-		if (props.timer === 0){
-			setConfirmed(false)
-			setMission(getMission(players))
-			props.handleOpenChange(true)
-			props.handleOpenAlert(false)
-			props.changeTimer(1000)
+		if (props.timer === 0) {
+			setConfirmed(false);
+			setMission(getMission(players));
+			props.handleOpenChange(true);
+			props.handleOpenAlert(false);
+			props.changeTimer(1000);
 		}
-	},[props.timer])
+	}, [props.timer]);
 
- 	const [openList, setOpenList] = useState(false)
+	const [openList, setOpenList] = useState(false);
 	function confirm() {
 		if (!confirmed) {
-			setConfirmed(true)
-			props.room.emit('New Actuality', {
-				text: mission.actualityText, 
-				idPlayer: props.selfId, 
+			setConfirmed(true);
+			props.room.emit("New Actuality", {
+				text: mission.actualityText,
+				idPlayer: props.selfId,
 				usernamePlayer: props.selfUsername
-			})
-			props.handleOpenChange(false)
+			});
+			props.handleOpenChange(false);
 			//Compte a rebours avant fin de mission
-			props.changeTimer(10 * 60)
-		}
-		else {
-			props.room.emit("Succes Mission", {rewardPoint: mission.rewardPoint, team: props.team, selfId: props.selfId})
-			setMission()
-			setConfirmed(false)	
-			props.handleOpenList("fromMission")
-			props.handleOpenChange(false)
+			props.changeTimer(10 * 60);
+		} else {
+			props.room.emit("Succes Mission", {
+				rewardPoint: mission.rewardPoint,
+				team: props.team,
+				selfId: props.selfId
+			});
+			setMission();
+			setConfirmed(false);
+			props.handleOpenList("fromMission");
+			props.handleOpenChange(false);
 			//Compte a rebours avant procahine mission
-			props.changeTimer(10)
+			props.changeTimer(10);
 		}
 	}
 
 	function cancel() {
 		if (!confirmed) {
-			props.room.emit("Delete Actuality", props.selfId)
-			setMission()
-			props.handleOpenChange(false)
+			props.room.emit("Delete Actuality", props.selfId);
+			setMission();
+			props.handleOpenChange(false);
 			//Compte a rebours avant procahine de mission PETIT
-			props.changeTimer(10)
-		}
-		else {
-			setConfirmed(false)
-			props.room.emit("Delete Actuality", props.selfId)
-			setMission()
-			props.handleOpenChange(false)
+			props.changeTimer(10);
+		} else {
+			setConfirmed(false);
+			props.room.emit("Delete Actuality", props.selfId);
+			setMission();
+			props.handleOpenChange(false);
 			//Compte a rebourd normal
-			props.changeTimer(15)
+			props.changeTimer(15);
 		}
 	}
 
-	if (props.open && mission ) {
-		return(
-			<View style={styles.container}>				
-
+	if (props.open && mission) {
+		return (
+			<View style={styles.container}>
 				<Text style={styles.text}>{mission.text}</Text>
-				
-				{ !confirmed ? 
-					<Text style={styles.text}>Acceptez-vous la mission ?</Text> :
+
+				{!confirmed ? (
+					<Text style={styles.text}>Acceptez-vous la mission ?</Text>
+				) : (
 					<Text style={styles.text}>Mission effectué ?</Text>
-				}
+				)}
 
-				<View style={{flexDirection: "row", marginTop: 20}}>
-
-					<TouchableOpacity 
-						style={{marginRight: 40}}
+				<View style={{ flexDirection: "row", marginTop: 20 }}>
+					<TouchableOpacity
+						style={{ marginRight: 40 }}
 						onPress={() => confirm()}
 					>
-						<MaterialIcons name="check-circle" size={48} color="#defaf6" />
+						<MaterialIcons
+							name="check-circle"
+							size={48}
+							color="#defaf6"
+						/>
 					</TouchableOpacity>
 
-					<TouchableOpacity
-						onPress={() => cancel()}
-					>
-						<MaterialIcons name="cancel" size={48} color="#fae3ec" />
+					<TouchableOpacity onPress={() => cancel()}>
+						<MaterialIcons
+							name="cancel"
+							size={48}
+							color="#fae3ec"
+						/>
 					</TouchableOpacity>
-
 				</View>
 
-				<TouchableOpacity 
-					style={{position: "absolute", bottom: -8, left: 16}}
-					onPress={() => props.handleOpenChange(false)}>
-					<MaterialIcons size={32} color={"#defaf6"} name="arrow-back" />
+				<TouchableOpacity
+					style={{ position: "absolute", bottom: -8, left: 16 }}
+					onPress={() => props.handleOpenChange(false)}
+				>
+					<MaterialIcons
+						size={32}
+						color={"#defaf6"}
+						name="arrow-back"
+					/>
 				</TouchableOpacity>
-
 			</View>
-		)
-	}
-	else if (props.open && !mission ) return(
-		<View style={styles.container}>	
-			<Text style={{textAlign: "center", color: "white"}}>Vous n'avez pas de mission pour le moment</Text>
-			<TouchableOpacity 
-				style={{position: "absolute", bottom: -8, left: 16}}
-				onPress={() => props.handleOpenChange(false)}>
-				<MaterialIcons size={32} color={"#defaf6"} name="arrow-back" />
-			</TouchableOpacity>
-		</View>
-		)
-	else return(
-		null
-		)
+		);
+	} else if (props.open && !mission)
+		return (
+			<View style={styles.container}>
+				<Text style={{ textAlign: "center", color: "white" }}>
+					Vous n'avez pas de mission pour le moment
+				</Text>
+				<TouchableOpacity
+					style={{ position: "absolute", bottom: -8, left: 16 }}
+					onPress={() => props.handleOpenChange(false)}
+				>
+					<MaterialIcons
+						size={32}
+						color={"#defaf6"}
+						name="arrow-back"
+					/>
+				</TouchableOpacity>
+			</View>
+		);
+	else return null;
 }
-
 
 const styles = StyleSheet.create({
 	container: {
 		width: "100%",
-		alignItems:"center",
+		alignItems: "center",
 		justifyContent: "center",
 		marginBottom: 16
 	},
