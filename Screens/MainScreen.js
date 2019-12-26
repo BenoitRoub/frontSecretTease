@@ -23,41 +23,29 @@ import Score from ".././Components/Score";
 import Actuality from ".././Components/Actuality";
 
 export default function MainScreen(props) {
-	// const [room, setRoom] = useState();
-	// const [selfId, setSelfId] = useState();
-	// const [selfUsername, setSelfUsername] = useState();
+	const [timer, setTimer] = useState(5);
 
-	// useEffect(() => {
-	// 	if (room)
-	// 		room.on("SelfId", res => {
-	// 			setSelfId(res.id);
-	// 			setSelfUsername(res.username);
-	// 		});
-	// }, [room]);
+	useInterval(() => {
+		setTimer(timer - 1);
+	}, 1000);
 
-	// const [timer, setTimer] = useState(5);
+	const [niceTimer, setNiceTimer] = useState();
+	useEffect(() => {
+		var sec = timer % 60;
+		if (sec < 10) {
+			sec = "0" + sec;
+		}
+		var min = Math.floor(timer / 60);
+		setNiceTimer(`${min} : ${sec}`);
+	}, [timer]);
 
-	// useInterval(() => {
-	// 	setTimer(timer - 1);
-	// }, 1000);
+	const [openMission, setOpenMission] = useState(false);
+	const [openAlert, setOpenAlert] = useState(false);
 
-	// const [niceTimer, setNiceTimer] = useState();
-	// useEffect(() => {
-	// 	var sec = timer % 60;
-	// 	if (sec < 10) {
-	// 		sec = "0" + sec;
-	// 	}
-	// 	var min = Math.floor(timer / 60);
-	// 	setNiceTimer(`${min} : ${sec}`);
-	// }, [timer]);
+	const [openList, setOpenList] = useState();
+	const [missionPicked, setMissionPicked] = useState();
 
-	// const [openMission, setOpenMission] = useState(false);
-	// const [openAlert, setOpenAlert] = useState(false);
-
-	// const [openList, setOpenList] = useState();
-	// const [missionPicked, setMissionPicked] = useState();
-
-	if (props.room)
+	if (props.socket)
 		return (
 			<View
 				style={{
@@ -67,20 +55,21 @@ export default function MainScreen(props) {
 					justifyContent: "center"
 				}}
 			>
-				<Score room={room} />
+				<Score socket={props.socket} />
 
 				<ListPlayer
+					players={props.players}
 					open={openList}
-					room={room}
+					socket={props.socket}
 					missionPicked={missionPicked}
-					selfId={selfId}
-					selfUsername={selfUsername}
+					selfId={props.selfId}
+					selfUsername={props.selfUsername}
 					handleOpenList={boolean => setOpenList(boolean)}
 					handleMissionPicked={mission => setMissionPicked(mission)}
 				/>
 
 				<Actuality
-					room={room}
+					socket={props.socket}
 					openList={openList}
 					handleOpenList={boolean => setOpenList(boolean)}
 					handleMissionPicked={mission => setMissionPicked(mission)}
@@ -131,23 +120,24 @@ export default function MainScreen(props) {
 					</View>
 
 					<Alert
-						room={room}
+						socket={props.socket}
 						open={openAlert}
 						handleOpenChange={boolean => setOpenAlert(boolean)}
 						handleOpenMission={boolean => setOpenMission(boolean)}
 					/>
 
 					<PopUpMission
-						room={room}
+						socket={props.socket}
 						open={openMission}
 						handleOpenChange={boolean => setOpenMission(boolean)}
 						handleOpenAlert={boolean => setOpenAlert(boolean)}
 						handleOpenList={boolean => setOpenList(boolean)}
-						team={1}
-						selfId={selfId}
-						selfUsername={selfUsername}
+						team={"good"}
+						selfId={props.selfId}
+						selfUsername={props.selfUsername}
 						timer={timer}
 						changeTimer={timer => setTimer(timer)}
+						players={props.players}
 					/>
 				</LinearGradient>
 			</View>

@@ -13,13 +13,9 @@ export default function PopUpMission(props) {
 	const [confirmed, setConfirmed] = useState(false);
 
 	//  Liste des jouerus pour les missions avec cibles
-	const [players, setPlayers] = useState([]);
+	// const [players, setPlayers] = useState([]);
 	useEffect(() => {
-		props.room.on("New Player", players => {
-			setPlayers(players);
-		});
-		props.room.emit("Actualise Player List");
-		props.room.on("Mission Discover", () => {
+		props.socket.on("Mission Discover", () => {
 			setMission();
 			props.changeTimer(10);
 		});
@@ -28,7 +24,7 @@ export default function PopUpMission(props) {
 	useEffect(() => {
 		if (props.timer === 0) {
 			setConfirmed(false);
-			setMission(getMission(players));
+			setMission(getMission(props.players));
 			props.handleOpenChange(true);
 			props.handleOpenAlert(false);
 			props.changeTimer(1000);
@@ -39,20 +35,22 @@ export default function PopUpMission(props) {
 	function confirm() {
 		if (!confirmed) {
 			setConfirmed(true);
-			props.room.emit("New Actuality", {
+			props.socket.emit("New Actuality", {
 				text: mission.actualityText,
 				idPlayer: props.selfId,
-				usernamePlayer: props.selfUsername
+				usernamePlayer: props.selfUsername,
+				type: "startMission"
 			});
 			props.handleOpenChange(false);
 			//Compte a rebours avant fin de mission
 			props.changeTimer(10 * 60);
 		} else {
-			props.room.emit("Succes Mission", {
+			props.socket.emit("Succes Mission", {
 				rewardPoint: mission.rewardPoint,
 				team: props.team,
 				selfId: props.selfId
 			});
+			props.socket.emit("Delete Actuality", props.selfId);
 			setMission();
 			setConfirmed(false);
 			props.handleOpenList("fromMission");
@@ -64,14 +62,14 @@ export default function PopUpMission(props) {
 
 	function cancel() {
 		if (!confirmed) {
-			props.room.emit("Delete Actuality", props.selfId);
+			props.socket.emit("Delete Actuality", props.selfId);
 			setMission();
 			props.handleOpenChange(false);
 			//Compte a rebours avant procahine de mission PETIT
 			props.changeTimer(10);
 		} else {
 			setConfirmed(false);
-			props.room.emit("Delete Actuality", props.selfId);
+			props.socket.emit("Delete Actuality", props.selfId);
 			setMission();
 			props.handleOpenChange(false);
 			//Compte a rebourd normal
