@@ -12,8 +12,6 @@ export default function PopUpMission(props) {
 
 	const [confirmed, setConfirmed] = useState(false);
 
-	//  Liste des jouerus pour les missions avec cibles
-	// const [players, setPlayers] = useState([]);
 	useEffect(() => {
 		props.socket.on("Mission Discover", () => {
 			setMission();

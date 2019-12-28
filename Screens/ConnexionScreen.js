@@ -38,6 +38,7 @@ export default function ConnexionScreen(props) {
 		});
 		props.socket.on("player:list", playersList => {
 			setPlayers(playersList);
+			console.log(playersList);
 		});
 		props.socket.emit("player:getList");
 	}, []);
@@ -147,7 +148,7 @@ export default function ConnexionScreen(props) {
 													fontSize: 15
 												}}
 											>
-												{player.username}
+												{player.name}
 											</Text>
 											{player.id === props.socket.id ? (
 												<View

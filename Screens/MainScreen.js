@@ -22,8 +22,12 @@ import ListPlayer from ".././Components/ListPlayer";
 import Score from ".././Components/Score";
 import Actuality from ".././Components/Actuality";
 
+import CardRole from ".././Components/CardRole";
+import LeaderBoards from ".././Components/LeaderBoards";
+import ListPlayerMistigri from ".././Components/ListPlayerMistigri";
+
 export default function MainScreen(props) {
-	const [timer, setTimer] = useState(5);
+	const [timer, setTimer] = useState(20);
 
 	useInterval(() => {
 		setTimer(timer - 1);
@@ -31,21 +35,121 @@ export default function MainScreen(props) {
 
 	const [niceTimer, setNiceTimer] = useState();
 	useEffect(() => {
-		var sec = timer % 60;
-		if (sec < 10) {
-			sec = "0" + sec;
-		}
-		var min = Math.floor(timer / 60);
-		setNiceTimer(`${min} : ${sec}`);
+		if (timer > 0) {
+			var sec = timer % 60;
+			if (sec < 10) {
+				sec = "0" + sec;
+			}
+			var min = Math.floor(timer / 60);
+			setNiceTimer(`${min} : ${sec}`);
+		} else setNiceTimer("0");
 	}, [timer]);
 
-	const [openMission, setOpenMission] = useState(false);
-	const [openAlert, setOpenAlert] = useState(false);
+	useEffect(() => {
+		props.socket.on("timer:update", newTimer => {
+			setTimer(newTimer);
+		});
+	}, []);
 
-	const [openList, setOpenList] = useState();
-	const [missionPicked, setMissionPicked] = useState();
+	useEffect(() => {
+		if (timer === -30) {
+			props.socket.emit("timer:end");
+		}
+	}, [timer]);
 
-	if (props.socket)
+	const [openCard, setOpenCard] = useState(true);
+	const [openLeaderBoards, setOpenLeaderBoards] = useState(false);
+	const [openListPlayer, setOpenListPlayer] = useState(false);
+
+	return (
+		<View
+			style={{
+				flex: 1,
+				height: "100%",
+				width: "100%",
+				justifyContent: "center",
+				alignItems: "center"
+			}}
+		>
+			{!openLeaderBoards && (
+				<TouchableOpacity
+					onPress={() => {
+						setOpenCard(false),
+							setOpenListPlayer(false),
+							setOpenLeaderBoards(true);
+					}}
+					style={{
+						borderWidth: 1,
+						padding: 10,
+						borderColor: "white",
+						marginTop: 50
+					}}
+				>
+					<Text>LeaderBoards</Text>
+				</TouchableOpacity>
+			)}
+
+			<Text style={{ marginTop: 50 }}>Timer : {niceTimer}</Text>
+			<LeaderBoards
+				socket={props.socket}
+				open={openLeaderBoards}
+				handleOpen={() => {
+					setOpenCard(false),
+						setOpenListPlayer(false),
+						setOpenLeaderBoards(true);
+				}}
+				openListPlayer={() => {
+					setOpenCard(false),
+						setOpenListPlayer(true),
+						setOpenLeaderBoards(false);
+				}}
+			/>
+			<CardRole
+				socket={props.socket}
+				timer={timer}
+				open={openCard}
+				handleOpen={() => {
+					setOpenCard(true),
+						setOpenListPlayer(false),
+						setOpenLeaderBoards(false);
+				}}
+				openListPlayer={() => {
+					setOpenCard(false),
+						setOpenListPlayer(true),
+						setOpenLeaderBoards(false);
+				}}
+			/>
+			<ListPlayerMistigri
+				socket={props.socket}
+				open={openListPlayer}
+				timer={timer}
+				handleOpen={() => {
+					setOpenCard(false),
+						setOpenListPlayer(true),
+						setOpenLeaderBoards(false);
+				}}
+				openLeaderBoards={() => {
+					setOpenCard(false),
+						setOpenListPlayer(false),
+						setOpenLeaderBoards(true);
+				}}
+				openCard={() => {
+					setOpenCard(true),
+						setOpenListPlayer(false),
+						setOpenLeaderBoards(false);
+				}}
+				selfId={props.selfId}
+			/>
+		</View>
+	);
+}
+// const [openMission, setOpenMission] = useState(false);
+// const [openAlert, setOpenAlert] = useState(false);
+
+// const [openList, setOpenList] = useState();
+// const [missionPicked, setMissionPicked] = useState();
+
+/*if (props.socket)
 		return (
 			<View
 				style={{
@@ -143,7 +247,7 @@ export default function MainScreen(props) {
 			</View>
 		);
 	else return <View></View>;
-}
+} */
 
 const styles = StyleSheet.create({
 	bottomBar: {
