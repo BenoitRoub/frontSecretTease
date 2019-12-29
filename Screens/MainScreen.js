@@ -27,7 +27,7 @@ import LeaderBoards from ".././Components/LeaderBoards";
 import ListPlayerMistigri from ".././Components/ListPlayerMistigri";
 
 export default function MainScreen(props) {
-	const [timer, setTimer] = useState(20);
+	const [timer, setTimer] = useState(-20);
 
 	useInterval(() => {
 		setTimer(timer - 1);
@@ -45,15 +45,18 @@ export default function MainScreen(props) {
 		} else setNiceTimer("0");
 	}, [timer]);
 
+	const [round, setRound] = useState(1);
+
 	useEffect(() => {
 		props.socket.on("timer:update", newTimer => {
 			setTimer(newTimer);
+			setRound(round + 1);
 		});
 	}, []);
 
 	useEffect(() => {
 		if (timer === -30) {
-			props.socket.emit("timer:end");
+			props.socket.emit("timer:end", { round: round });
 		}
 	}, [timer]);
 

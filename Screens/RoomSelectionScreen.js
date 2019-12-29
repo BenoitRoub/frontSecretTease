@@ -243,7 +243,8 @@ export default function RoomSelectionScreen(props) {
 												onPress={() => {
 													socket.emit("Add Room", {
 														name: newRoom,
-														password: newRoomPassword
+														password: newRoomPassword,
+														round: 0
 													});
 													setOpenNewRoom(false);
 												}}
