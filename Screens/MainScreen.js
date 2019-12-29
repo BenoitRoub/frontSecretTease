@@ -22,42 +22,137 @@ import ListPlayer from ".././Components/ListPlayer";
 import Score from ".././Components/Score";
 import Actuality from ".././Components/Actuality";
 
+import CardRole from ".././Components/CardRole";
+import LeaderBoards from ".././Components/LeaderBoards";
+import ListPlayerMistigri from ".././Components/ListPlayerMistigri";
+
 export default function MainScreen(props) {
-	// const [room, setRoom] = useState();
-	// const [selfId, setSelfId] = useState();
-	// const [selfUsername, setSelfUsername] = useState();
+	const [timer, setTimer] = useState(-20);
 
-	// useEffect(() => {
-	// 	if (room)
-	// 		room.on("SelfId", res => {
-	// 			setSelfId(res.id);
-	// 			setSelfUsername(res.username);
-	// 		});
-	// }, [room]);
+	useInterval(() => {
+		setTimer(timer - 1);
+	}, 1000);
 
-	// const [timer, setTimer] = useState(5);
+	const [niceTimer, setNiceTimer] = useState();
+	useEffect(() => {
+		if (timer > 0) {
+			var sec = timer % 60;
+			if (sec < 10) {
+				sec = "0" + sec;
+			}
+			var min = Math.floor(timer / 60);
+			setNiceTimer(`${min} : ${sec}`);
+		} else setNiceTimer("0");
+	}, [timer]);
 
-	// useInterval(() => {
-	// 	setTimer(timer - 1);
-	// }, 1000);
+	const [round, setRound] = useState(1);
 
-	// const [niceTimer, setNiceTimer] = useState();
-	// useEffect(() => {
-	// 	var sec = timer % 60;
-	// 	if (sec < 10) {
-	// 		sec = "0" + sec;
-	// 	}
-	// 	var min = Math.floor(timer / 60);
-	// 	setNiceTimer(`${min} : ${sec}`);
-	// }, [timer]);
+	useEffect(() => {
+		props.socket.on("timer:update", newTimer => {
+			setTimer(newTimer);
+			setRound(round + 1);
+		});
+	}, []);
 
-	// const [openMission, setOpenMission] = useState(false);
-	// const [openAlert, setOpenAlert] = useState(false);
+	useEffect(() => {
+		if (timer === -30) {
+			props.socket.emit("timer:end", { round: round });
+		}
+	}, [timer]);
 
-	// const [openList, setOpenList] = useState();
-	// const [missionPicked, setMissionPicked] = useState();
+	const [openCard, setOpenCard] = useState(true);
+	const [openLeaderBoards, setOpenLeaderBoards] = useState(false);
+	const [openListPlayer, setOpenListPlayer] = useState(false);
 
-	if (props.room)
+	return (
+		<View
+			style={{
+				flex: 1,
+				height: "100%",
+				width: "100%",
+				justifyContent: "center",
+				alignItems: "center"
+			}}
+		>
+			{!openLeaderBoards && (
+				<TouchableOpacity
+					onPress={() => {
+						setOpenCard(false),
+							setOpenListPlayer(false),
+							setOpenLeaderBoards(true);
+					}}
+					style={{
+						borderWidth: 1,
+						padding: 10,
+						borderColor: "white",
+						marginTop: 50
+					}}
+				>
+					<Text>LeaderBoards</Text>
+				</TouchableOpacity>
+			)}
+
+			<Text style={{ marginTop: 50 }}>Timer : {niceTimer}</Text>
+			<LeaderBoards
+				socket={props.socket}
+				open={openLeaderBoards}
+				handleOpen={() => {
+					setOpenCard(false),
+						setOpenListPlayer(false),
+						setOpenLeaderBoards(true);
+				}}
+				openListPlayer={() => {
+					setOpenCard(false),
+						setOpenListPlayer(true),
+						setOpenLeaderBoards(false);
+				}}
+			/>
+			<CardRole
+				socket={props.socket}
+				timer={timer}
+				open={openCard}
+				handleOpen={() => {
+					setOpenCard(true),
+						setOpenListPlayer(false),
+						setOpenLeaderBoards(false);
+				}}
+				openListPlayer={() => {
+					setOpenCard(false),
+						setOpenListPlayer(true),
+						setOpenLeaderBoards(false);
+				}}
+			/>
+			<ListPlayerMistigri
+				socket={props.socket}
+				open={openListPlayer}
+				timer={timer}
+				handleOpen={() => {
+					setOpenCard(false),
+						setOpenListPlayer(true),
+						setOpenLeaderBoards(false);
+				}}
+				openLeaderBoards={() => {
+					setOpenCard(false),
+						setOpenListPlayer(false),
+						setOpenLeaderBoards(true);
+				}}
+				openCard={() => {
+					setOpenCard(true),
+						setOpenListPlayer(false),
+						setOpenLeaderBoards(false);
+				}}
+				selfId={props.selfId}
+			/>
+		</View>
+	);
+}
+// const [openMission, setOpenMission] = useState(false);
+// const [openAlert, setOpenAlert] = useState(false);
+
+// const [openList, setOpenList] = useState();
+// const [missionPicked, setMissionPicked] = useState();
+
+/*if (props.socket)
 		return (
 			<View
 				style={{
@@ -67,20 +162,21 @@ export default function MainScreen(props) {
 					justifyContent: "center"
 				}}
 			>
-				<Score room={room} />
+				<Score socket={props.socket} />
 
 				<ListPlayer
+					players={props.players}
 					open={openList}
-					room={room}
+					socket={props.socket}
 					missionPicked={missionPicked}
-					selfId={selfId}
-					selfUsername={selfUsername}
+					selfId={props.selfId}
+					selfUsername={props.selfUsername}
 					handleOpenList={boolean => setOpenList(boolean)}
 					handleMissionPicked={mission => setMissionPicked(mission)}
 				/>
 
 				<Actuality
-					room={room}
+					socket={props.socket}
 					openList={openList}
 					handleOpenList={boolean => setOpenList(boolean)}
 					handleMissionPicked={mission => setMissionPicked(mission)}
@@ -131,29 +227,30 @@ export default function MainScreen(props) {
 					</View>
 
 					<Alert
-						room={room}
+						socket={props.socket}
 						open={openAlert}
 						handleOpenChange={boolean => setOpenAlert(boolean)}
 						handleOpenMission={boolean => setOpenMission(boolean)}
 					/>
 
 					<PopUpMission
-						room={room}
+						socket={props.socket}
 						open={openMission}
 						handleOpenChange={boolean => setOpenMission(boolean)}
 						handleOpenAlert={boolean => setOpenAlert(boolean)}
 						handleOpenList={boolean => setOpenList(boolean)}
-						team={1}
-						selfId={selfId}
-						selfUsername={selfUsername}
+						team={"good"}
+						selfId={props.selfId}
+						selfUsername={props.selfUsername}
 						timer={timer}
 						changeTimer={timer => setTimer(timer)}
+						players={props.players}
 					/>
 				</LinearGradient>
 			</View>
 		);
 	else return <View></View>;
-}
+} */
 
 const styles = StyleSheet.create({
 	bottomBar: {
