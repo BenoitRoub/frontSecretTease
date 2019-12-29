@@ -27,7 +27,7 @@ import LeaderBoards from ".././Components/LeaderBoards";
 import ListPlayerMistigri from ".././Components/ListPlayerMistigri";
 
 export default function MainScreen(props) {
-	const [timer, setTimer] = useState(-20);
+	const [timer, setTimer] = useState(-25);
 
 	useInterval(() => {
 		setTimer(timer - 1);

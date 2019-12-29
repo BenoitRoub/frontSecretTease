@@ -4,17 +4,19 @@ import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
-import getCardById from ".././Function/getCardById";
+import getRoleById from ".././Function/getCardById";
 
 export default function CardRole(props) {
-	const [card, setCard] = useState({
-		name: "Mistigri",
-		info: "Vous êtes le mistigri"
+	const [role, setRole] = useState({
+		name: "",
+		info: ""
 	});
 
 	useEffect(() => {
-		props.socket.on("card:update", newCard => {
-			setCard(getCardById(newCard));
+		props.socket.on("role:update", newRole => {
+			console.log(newRole);
+			console.log(getRoleById(newRole));
+			setRole(getRoleById(newRole));
 			setFaceCard(true);
 			props.handleOpen();
 		});
@@ -33,7 +35,7 @@ export default function CardRole(props) {
 					/>
 				</TouchableOpacity>
 				<View>
-					<Text>{card.name}</Text>
+					<Text>{role.name}</Text>
 				</View>
 				<TouchableOpacity
 					style={{
@@ -54,7 +56,7 @@ export default function CardRole(props) {
 				<TouchableOpacity onPress={() => setFaceCard(true)}>
 					<Ionicons name="md-arrow-back" size={32} color={"black"} />
 				</TouchableOpacity>
-				<Text>{card.info}</Text>
+				<Text>{role.info}</Text>
 			</View>
 		);
 	else return null;
