@@ -11,30 +11,23 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 export default function LeaderBoards(props) {
-	const [allPlayers, setAllPlayers] = useState([]);
-
-	useEffect(() => {
-		props.socket.on("player:list", playersList => {
-			setAllPlayers(playersList);
-		});
-	});
-
-	if (props.open)
-		return (
-			<View
-				style={{
-					width: "100%",
-					height: "100%",
-					justifyContent: "center",
-					alignItems: "center"
-				}}
-			>
-				<View style={{ height: 100 }}></View>
-				<TouchableOpacity onPress={() => props.openListPlayer()}>
-					<Text>Return</Text>
-				</TouchableOpacity>
-				<ScrollView>
-					{allPlayers.map((player, index) => (
+	return (
+		<View
+			style={{
+				width: "100%",
+				height: "100%",
+				justifyContent: "center",
+				alignItems: "center"
+			}}
+		>
+			<View style={{ height: 100 }}></View>
+			<TouchableOpacity onPress={() => props.open("ListPlayer")}>
+				<Text>Return</Text>
+			</TouchableOpacity>
+			<ScrollView>
+				{props.allPlayers
+					.sort((a, b) => b.score - a.score)
+					.map((player, index) => (
 						<View style={{ flexDirection: "row" }} key={player.id}>
 							{index === 0 && (
 								<Ionicons
@@ -44,12 +37,15 @@ export default function LeaderBoards(props) {
 								/>
 							)}
 							<Text style={{ marginLeft: 16 }}>
-								{index + 1}. {player.score}
+								{player.id === props.selfId
+									? `${index + 1}. ${player.name} ${
+											player.score
+									  }`
+									: `${index + 1}. ${player.score}`}
 							</Text>
 						</View>
 					))}
-				</ScrollView>
-			</View>
-		);
-	else return null;
+			</ScrollView>
+		</View>
+	);
 }

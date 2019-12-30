@@ -125,6 +125,7 @@ export default function ConnexionScreen(props) {
 	function getWidth() {
 		return 50;
 	}
+
 	return (
 		<View
 			style={{
@@ -170,7 +171,7 @@ export default function ConnexionScreen(props) {
 				style={{ top: 300 }}
 				onPress={() => startScaleAnimation(false)}
 			>
-				<Text>staffrt </Text>
+				<Text>start</Text>
 			</TouchableOpacity>
 		</View>
 	);

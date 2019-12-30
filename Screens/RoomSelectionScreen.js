@@ -33,7 +33,7 @@ export default function RoomSelectionScreen(props) {
 
 	//https://backend-secret-tease.herokuapp.com/
 	useEffect(() => {
-		setSocket(io("http://192.168.0.50:8080"));
+		setSocket(io("http://192.168.0.14:8080"));
 	}, []);
 
 	useEffect(() => {
@@ -76,6 +76,16 @@ export default function RoomSelectionScreen(props) {
 					/>
 				) : (
 					<View>
+						<Text
+							style={{
+								textAlign: "center",
+								fontSize: 20,
+								color: "white",
+								margin: 20
+							}}
+						>
+							L'Ascension
+						</Text>
 						<Modal
 							animationType="slide"
 							transparent={true}
@@ -128,7 +138,7 @@ export default function RoomSelectionScreen(props) {
 						</Modal>
 						<View
 							style={{
-								margin: 10,
+								margin: "5%",
 								width: "90%"
 							}}
 						>

@@ -30,25 +30,19 @@ import PersonnalCard from "../Components/PersonnalCard";
 import CardRole from ".././Components/CardRole";
 import LeaderBoards from ".././Components/LeaderBoards";
 import ListPlayerMistigri from ".././Components/ListPlayerMistigri";
+import Timer from ".././Components/Timer";
+
+import getRoleById from ".././Function/getCardById";
 
 export default function MainScreen(props) {
+	//
+	//TIMER
+	//
+
 	const [timer, setTimer] = useState(-25);
-	const [dynamicListOpen, setDynamicListOpen] = useState(false);
 	useInterval(() => {
 		setTimer(timer - 1);
 	}, 1000);
-
-	const [niceTimer, setNiceTimer] = useState();
-	useEffect(() => {
-		if (timer > 0) {
-			var sec = timer % 60;
-			if (sec < 10) {
-				sec = "0" + sec;
-			}
-			var min = Math.floor(timer / 60);
-			setNiceTimer(`${min} : ${sec}`);
-		} else setNiceTimer("0");
-	}, [timer]);
 
 	const [round, setRound] = useState(1);
 
@@ -59,15 +53,116 @@ export default function MainScreen(props) {
 		});
 	}, []);
 
+	//
+	//PLAYERSLIST
+	//
+
+	const [playerSelected, setPlayerSelected] = useState();
+	const [allPlayers, setAllPlayers] = useState([
+		{
+			name: "Fel",
+			room: 2,
+			id: "mpojjn",
+			role: 1,
+			score: 10
+		},
+		{
+			name: "Gauth",
+			room: 2,
+			id: "ddzadqqz",
+			role: 1,
+			score: 9
+		},
+		{
+			name: "Pau",
+			room: 2,
+			id: "mùjksmonn",
+			role: 1,
+			score: 9
+		},
+		{
+			name: "Be",
+			room: "Room2",
+			id: "aKvQCTyHQr6CqIpzAAAB",
+			score: 0,
+			ready: true,
+			role: 15
+		}
+	]);
+	const [prevListPlayers, setPrevListPlayers] = useState([
+		{
+			name: "Fel",
+			room: 2,
+			id: "mpojjn",
+			role: 1,
+			score: 5
+		},
+		{
+			name: "Gauth",
+			room: 2,
+			id: "ddzadqqz",
+			role: 1,
+			score: 8
+		},
+		{
+			name: "Pau",
+			room: 2,
+			id: "mùjksmonn",
+			role: 1,
+			score: 9
+		},
+		{
+			name: "Be",
+			room: "Room2",
+			id: "aKvQCTyHQr6CqIpzAAAB",
+			score: 0,
+			ready: true,
+			role: 1
+		}
+	]);
+
+	// useEffect(() => {
+	// 	props.socket.on("player:list", playersList => {
+	// 		setAllPlayers(playersList);
+	// 	});
+	// }, []);
+
 	useEffect(() => {
+		if (timer === 0) {
+			props.socket.emit("player:vote", { targetId: playerSelected });
+			handleOpen("DynamicList");
+		}
 		if (timer === -30) {
 			props.socket.emit("timer:end", { round: round });
+			setPrevListPlayers(allPlayers);
 		}
 	}, [timer]);
 
-	const [openCard, setOpenCard] = useState(false);
-	const [openLeaderBoards, setOpenLeaderBoards] = useState(false);
-	const [openListPlayer, setOpenListPlayer] = useState(true);
+	//
+	// ROLE
+	//
+
+	const [role, setRole] = useState({
+		name: "nom",
+		info: "info"
+	});
+
+	const [faceCard, setFaceCard] = useState(true);
+
+	useEffect(() => {
+		props.socket.on("role:update", newRole => {
+			setRole(getRoleById(newRole));
+			setFaceCard(true);
+			handleOpen("ListPlayer");
+		});
+	}, []);
+
+	const [open, setOpen] = useState();
+	function handleOpen(text) {
+		setOpen(text);
+	}
+
+	console.log(role);
 
 	return (
 		<View
@@ -79,79 +174,48 @@ export default function MainScreen(props) {
 				alignItems: "center"
 			}}
 		>
-			<DynamicList
-				open={dynamicListOpen}
-				newList={[
-					{ value: 14, text: "Felix" },
-					{ value: 11, text: "Benoit" },
-					{ value: 9, text: "Morgane" }
-				]}
-				oldList={[
-					{ value: 3, text: "Felix", color: "red" },
-					{ value: 3, text: "Benoit", color: "blue" },
-					{ value: 6, text: "Morgane", color: "#253237" }
-				]}
-			/>
-			{!openLeaderBoards && (
+			<Timer timer={timer} />
+
+			{open !== "LeaderBoards" && (
 				<TouchableOpacity
-					onPress={() => {
-						setOpenCard(false),
-							setOpenListPlayer(false),
-							setOpenLeaderBoards(true);
-					}}
+					onPress={() => handleOpen("LeaderBoards")}
 					style={{
 						position: "absolute",
-						height: "100%",
-						borderBottomLeftRadius: 20,
-						borderTopLeftRadius: 20,
-						right: 0,
-						padding: 10,
-						backgroundColor: "rgba(255,255,255,0.7)",
-						paddingTop: 100
+						right: 100,
+						top: 100
 					}}
 				>
-					<Foundation name="crown" size={32} color={"white"} />
+					<Foundation name="crown" size={48} color={"white"} />
 				</TouchableOpacity>
 			)}
+
+			{open === "LeaderBoards" && (
+				<LeaderBoards
+					open={text => handleOpen(text)}
+					allPlayers={allPlayers}
+					selfId={props.socket.id}
+				/>
+			)}
+
+			{open === "ListPlayer" && (
+				<ListPlayerMistigri
+					open={text => handleOpen(text)}
+					selfId={props.socket.id}
+					playerSelected={playerSelected}
+					allPlayers={allPlayers}
+					role={role}
+					faceCard={faceCard}
+					handleFaceCard={bool => setFaceCard(bool)}
+				/>
+			)}
+
+			{open === "DynamicList" && (
+				<DynamicList newList={allPlayers} oldList={prevListPlayers} />
+			)}
+
 			<TouchableOpacity onPress={() => setDynamicListOpen(true)}>
-				<Text> ici</Text>
+				<Text>DynamicList</Text>
 			</TouchableOpacity>
-			<Text style={{ marginTop: 50 }}>Timer : {niceTimer}</Text>
-			<LeaderBoards
-				socket={props.socket}
-				open={openLeaderBoards}
-				handleOpen={() => {
-					setOpenCard(false),
-						setOpenListPlayer(false),
-						setOpenLeaderBoards(true);
-				}}
-				openListPlayer={() => {
-					setOpenCard(false),
-						setOpenListPlayer(true),
-						setOpenLeaderBoards(false);
-				}}
-			/>
-			<ListPlayerMistigri
-				socket={props.socket}
-				open={false}
-				timer={timer}
-				handleOpen={() => {
-					setOpenCard(false),
-						setOpenListPlayer(true),
-						setOpenLeaderBoards(false);
-				}}
-				openLeaderBoards={() => {
-					setOpenCard(false),
-						setOpenListPlayer(false),
-						setOpenLeaderBoards(true);
-				}}
-				openCard={() => {
-					setOpenCard(true),
-						setOpenListPlayer(false),
-						setOpenLeaderBoards(false);
-				}}
-				selfId={props.selfId}
-			/>
 		</View>
 	);
 }

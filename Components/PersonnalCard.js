@@ -105,110 +105,95 @@ export default function ListPlayerMistigri(props) {
 		]
 	};
 
-	const [playerSelected, setPlayerSelected] = useState();
-
-	const [allPlayers, setAllPlayers] = useState([
-		{
-			id: "miophiohh",
-			name: "Fel",
-			ready: true,
-			room: "Room2",
-			score: 0
-		}
-	]);
-
-	useEffect(() => {
-		if (props.timer === 0) {
-			props.socket.emit("player:vote", { targetId: playerSelected });
-			props.openLeaderBoards();
-		}
-	}, [props.timer]);
-
-	if (props.open)
-		return (
-			<View
-				style={{
-					position: "absolute",
-					width: "100%",
-					height: "100%",
-					alignItems: "center",
-					top: 100,
-					zIndex: 10
-				}}
-			>
-				{open ? (
-					<TouchableOpacity
+	return (
+		<View
+			style={{
+				position: "absolute",
+				width: "100%",
+				height: "100%",
+				alignItems: "center",
+				top: 100,
+				zIndex: 10
+			}}
+		>
+			{open ? (
+				<TouchableOpacity
+					style={{
+						width: 320,
+						height: 400,
+						position: "absolute",
+						zIndex: 100
+					}}
+					onPress={() => {
+						flipCard();
+					}}
+				></TouchableOpacity>
+			) : (
+				<TouchableWithoutFeedback
+					onPress={() => {
+						flipCard();
+					}}
+				>
+					<View
 						style={{
-							width: 320,
-							height: 400,
+							width: 80,
+							height: 80,
 							position: "absolute",
 							zIndex: 100
 						}}
-						onPress={() => {
-							flipCard();
-						}}
-					></TouchableOpacity>
-				) : (
-					<TouchableWithoutFeedback
-						onPress={() => {
-							flipCard();
-						}}
-					>
-						<View
-							style={{
-								width: 80,
-								height: 80,
-								position: "absolute",
-								zIndex: 100
-							}}
-						></View>
-					</TouchableWithoutFeedback>
-				)}
-				<Animated.View style={position}>
+					></View>
+				</TouchableWithoutFeedback>
+			)}
+			<Animated.View style={position}>
+				<Animated.View
+					style={{
+						width: 80,
+						height: 80,
+						transform: [{ scale: scale }]
+					}}
+				>
 					<Animated.View
 						style={{
 							width: 80,
 							height: 80,
-							transform: [{ scale: scale }]
+							backfaceVisibility: "hidden",
+							transform: [
+								{ rotateX: frontInterpolate },
+								{ perspective: 1000 }
+							]
 						}}
 					>
-						<Animated.View
-							style={{
-								width: 80,
-								height: 80,
-								backfaceVisibility: "hidden",
-								transform: [
-									{ rotateX: frontInterpolate },
-									{ perspective: 1000 }
-								]
-							}}
-						>
-							<View style={styles.cardOutside}>
-								<View style={styles.cardInside}></View>
-							</View>
-						</Animated.View>
-						<Animated.View
-							style={{
-								width: 80,
-								height: 80,
-								position: "absolute",
-								top: 0,
-								alignItems: "center",
-								justifyContent: "center",
-								transform: [
-									{ rotateX: backInterpolate },
-									{ perspective: 1000 }
-								],
-								backfaceVisibility: "hidden"
-							}}
-						>
-							<CardRole width={80} height={80} />
-						</Animated.View>
+						<View style={styles.cardOutside}>
+							<View style={styles.cardInside}></View>
+						</View>
+					</Animated.View>
+					<Animated.View
+						style={{
+							width: 80,
+							height: 80,
+							position: "absolute",
+							top: 0,
+							alignItems: "center",
+							justifyContent: "center",
+							transform: [
+								{ rotateX: backInterpolate },
+								{ perspective: 1000 }
+							],
+							backfaceVisibility: "hidden"
+						}}
+					>
+						<CardRole
+							width={80}
+							height={80}
+							role={props.role}
+							faceCard={props.faceCard}
+							handleFaceCard={bool => props.handleFaceCard(bool)}
+						/>
 					</Animated.View>
 				</Animated.View>
-			</View>
-		);
-	else return null;
+			</Animated.View>
+		</View>
+	);
 }
 
 const styles = StyleSheet.create({

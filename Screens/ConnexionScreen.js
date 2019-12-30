@@ -140,6 +140,7 @@ export default function ConnexionScreen(props) {
 												flexDirection: "row",
 												justifyContent: "space-between"
 											}}
+											key={player.name}
 										>
 											<Text
 												style={{
