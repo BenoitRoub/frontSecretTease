@@ -12,23 +12,28 @@ import io from "socket.io-client";
 
 import { LinearGradient } from "expo-linear-gradient";
 
-import { MaterialIcons, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+	MaterialIcons,
+	MaterialCommunityIcons,
+	Foundation
+} from "@expo/vector-icons";
 
 import useInterval from ".././Function/useInterval";
 
+import DynamicList from "../Components/AnimatedList";
 import PopUpMission from ".././Components/PopUpMission";
 import Alert from ".././Components/Alert";
 import ListPlayer from ".././Components/ListPlayer";
 import Score from ".././Components/Score";
 import Actuality from ".././Components/Actuality";
-
+import PersonnalCard from "../Components/PersonnalCard";
 import CardRole from ".././Components/CardRole";
 import LeaderBoards from ".././Components/LeaderBoards";
 import ListPlayerMistigri from ".././Components/ListPlayerMistigri";
 
 export default function MainScreen(props) {
 	const [timer, setTimer] = useState(-25);
-
+	const [dynamicListOpen, setDynamicListOpen] = useState(false);
 	useInterval(() => {
 		setTimer(timer - 1);
 	}, 1000);
@@ -60,9 +65,9 @@ export default function MainScreen(props) {
 		}
 	}, [timer]);
 
-	const [openCard, setOpenCard] = useState(true);
+	const [openCard, setOpenCard] = useState(false);
 	const [openLeaderBoards, setOpenLeaderBoards] = useState(false);
-	const [openListPlayer, setOpenListPlayer] = useState(false);
+	const [openListPlayer, setOpenListPlayer] = useState(true);
 
 	return (
 		<View
@@ -74,6 +79,19 @@ export default function MainScreen(props) {
 				alignItems: "center"
 			}}
 		>
+			<DynamicList
+				open={dynamicListOpen}
+				newList={[
+					{ value: 14, text: "Felix" },
+					{ value: 11, text: "Benoit" },
+					{ value: 9, text: "Morgane" }
+				]}
+				oldList={[
+					{ value: 3, text: "Felix", color: "red" },
+					{ value: 3, text: "Benoit", color: "blue" },
+					{ value: 6, text: "Morgane", color: "#253237" }
+				]}
+			/>
 			{!openLeaderBoards && (
 				<TouchableOpacity
 					onPress={() => {
@@ -82,16 +100,22 @@ export default function MainScreen(props) {
 							setOpenLeaderBoards(true);
 					}}
 					style={{
-						borderWidth: 1,
+						position: "absolute",
+						height: "100%",
+						borderBottomLeftRadius: 20,
+						borderTopLeftRadius: 20,
+						right: 0,
 						padding: 10,
-						borderColor: "white",
-						marginTop: 50
+						backgroundColor: "rgba(255,255,255,0.7)",
+						paddingTop: 100
 					}}
 				>
-					<Text>LeaderBoards</Text>
+					<Foundation name="crown" size={32} color={"white"} />
 				</TouchableOpacity>
 			)}
-
+			<TouchableOpacity onPress={() => setDynamicListOpen(true)}>
+				<Text> ici</Text>
+			</TouchableOpacity>
 			<Text style={{ marginTop: 50 }}>Timer : {niceTimer}</Text>
 			<LeaderBoards
 				socket={props.socket}
@@ -107,24 +131,9 @@ export default function MainScreen(props) {
 						setOpenLeaderBoards(false);
 				}}
 			/>
-			<CardRole
-				socket={props.socket}
-				timer={timer}
-				open={openCard}
-				handleOpen={() => {
-					setOpenCard(true),
-						setOpenListPlayer(false),
-						setOpenLeaderBoards(false);
-				}}
-				openListPlayer={() => {
-					setOpenCard(false),
-						setOpenListPlayer(true),
-						setOpenLeaderBoards(false);
-				}}
-			/>
 			<ListPlayerMistigri
 				socket={props.socket}
-				open={openListPlayer}
+				open={false}
 				timer={timer}
 				handleOpen={() => {
 					setOpenCard(false),

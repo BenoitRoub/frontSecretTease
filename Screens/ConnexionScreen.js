@@ -27,8 +27,8 @@ export default function ConnexionScreen(props) {
 	const [selfId, setSelfId] = useState();
 
 	useEffect(() => {
-		props.socket.on("game:enter", room => {
-			setSelfUsername(room.username);
+		props.socket.on("game:enter", name => {
+			setSelfUsername(name);
 			setEnterUsername(false);
 			setUsername();
 		});
@@ -38,7 +38,6 @@ export default function ConnexionScreen(props) {
 		});
 		props.socket.on("player:list", playersList => {
 			setPlayers(playersList);
-			console.log(playersList);
 		});
 		props.socket.emit("player:getList");
 	}, []);
@@ -92,6 +91,7 @@ export default function ConnexionScreen(props) {
 	useEffect(() => {
 		props.socket.on("game:launch", bool => {
 			setLaunch(bool);
+			console.log(bool);
 			if (bool) props.socket.emit("player:readyAction", true);
 		});
 

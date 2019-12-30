@@ -33,7 +33,7 @@ export default function RoomSelectionScreen(props) {
 
 	//https://backend-secret-tease.herokuapp.com/
 	useEffect(() => {
-		setSocket(io("http://192.168.0.14:8080"));
+		setSocket(io("http://192.168.0.50:8080"));
 	}, []);
 
 	useEffect(() => {

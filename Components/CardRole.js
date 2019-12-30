@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-import { Text, View, TouchableOpacity, StyleSheet } from "react-native";
+import {
+	Text,
+	View,
+	TouchableOpacity,
+	StyleSheet,
+	Animated
+} from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 
@@ -8,25 +14,31 @@ import getRoleById from ".././Function/getCardById";
 
 export default function CardRole(props) {
 	const [role, setRole] = useState({
-		name: "",
-		info: ""
+		name: "nom",
+		info: "info"
 	});
 
-	useEffect(() => {
-		props.socket.on("role:update", newRole => {
-			console.log(newRole);
-			console.log(getRoleById(newRole));
-			setRole(getRoleById(newRole));
-			setFaceCard(true);
-			props.handleOpen();
-		});
-	}, []);
+	// useEffect(() => {
+	// 	props.socket.on("role:update", newRole => {
+	// 		console.log(newRole);
+	// 		console.log(getRoleById(newRole));
+	// 		setRole(getRoleById(newRole));
+	// 		setFaceCard(true);
+	// 		props.handleOpen();
+	// 	});
+	// }, []);
 
 	const [faceCard, setFaceCard] = useState(true);
 
-	if (faceCard && props.open)
+	if (faceCard)
 		return (
-			<View>
+			<Animated.View
+				style={{
+					width: props.width,
+					height: props.height,
+					backgroundColor: "white"
+				}}
+			>
 				<TouchableOpacity onPress={() => setFaceCard(false)}>
 					<Ionicons
 						name="md-information-circle"
@@ -34,21 +46,10 @@ export default function CardRole(props) {
 						color={"black"}
 					/>
 				</TouchableOpacity>
-				<View>
-					<Text>{role.name}</Text>
-				</View>
-				<TouchableOpacity
-					style={{
-						borderRadius: 2,
-						borderWidth: 1,
-						borderColor: "grey",
-						padding: 8
-					}}
-					onPress={() => props.openListPlayer()}
-				>
-					<Text>Ok</Text>
-				</TouchableOpacity>
-			</View>
+				<Animated.Text style={{ fontSize: 12 }}>
+					{role.name}
+				</Animated.Text>
+			</Animated.View>
 		);
 	else if (!faceCard && props.open)
 		return (

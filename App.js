@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 
 import MainScreen from "./Screens/MainScreen";
 import RoomSelectionScreen from "./Screens/RoomSelectionScreen";
+import AnimatedList from "./Function/AnimatedList";
 
 export default function App() {
   return (

@@ -11,6 +11,8 @@ import {
 
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
+import BackCard from "./BackCard";
+import PersonnalCard from "./PersonnalCard";
 export default function ListPlayerMistigri(props) {
 	const [playerSelected, setPlayerSelected] = useState();
 
@@ -62,63 +64,21 @@ export default function ListPlayerMistigri(props) {
 					alignItems: "center"
 				}}
 			>
-				<ScrollView>
-					<TouchableOpacity
-						onPress={() => props.openCard()}
-						style={styles.cardOutside}
-					>
-						<View style={styles.cardInside} />
-					</TouchableOpacity>
-					<View style={{ flexDirection: "row" }}>
-						{allPlayers.map(
-							player =>
-								props.selfId !== player.id && (
-									<TouchableOpacity
-										key={player.id}
-										onPress={() =>
-											setPlayerSelected(player.id)
-										}
-										style={styles.cardOutside}
-									>
-										<View style={styles.cardInside}>
-											{playerSelected === player.id && (
-												<MaterialCommunityIcons
-													size={32}
-													color={"red"}
-													name={"circle"}
-												/>
-											)}
-											<Text>{player.name}</Text>
-										</View>
-									</TouchableOpacity>
-								)
-						)}
-					</View>
-				</ScrollView>
+				<PersonnalCard socket={props.socket} open />
+				<View style={{ flexDirection: "row" }}>
+					{allPlayers.map(player => (
+						<BackCard
+							player={player}
+							selectPlayer={playerId =>
+								setPlayerSelected(playerId)
+							}
+							playerSelected={playerSelected}
+							width={80}
+							height={80}
+						/>
+					))}
+				</View>
 			</View>
 		);
 	else return null;
 }
-
-const styles = StyleSheet.create({
-	cardOutside: {
-		width: Dimensions.get("window").width / 5,
-		height: Dimensions.get("window").width / 5,
-		borderRadius: 5,
-		alignItems: "center",
-		justifyContent: "center",
-		padding: 4,
-		backgroundColor: "#d9d9d9",
-		borderWidth: 1,
-		borderColor: "black",
-		margin: 16
-	},
-	cardInside: {
-		flex: 1,
-		width: "100%",
-		height: "100%",
-		alignItems: "center",
-		justifyContent: "center",
-		backgroundColor: "#75490f"
-	}
-});
